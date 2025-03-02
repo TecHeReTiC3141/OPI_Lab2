@@ -1,12 +1,19 @@
 #!/bin/bash
 
+# Define SVN repository path
+REPO_PATH="file://$PWD/svn/repo"
+COMMITS_PATH="../../commits"
+
 # SVN repository setup
-rm -rf svn_repo
-svnadmin create svn_repo
-svn checkout file://$PWD/svn_repo svn_working_copy
-cd svn_working_copy
+rm -rf svn
+mkdir svn
+cd svn
+
+svnadmin create repo
 svn mkdir trunk branches tags
-svn commit -m "Initial repository structure"
+
+svn checkout $REPO_PATH svn_working_copy
+cd svn_working_copy
 
 # Function to switch user
 red() {
@@ -22,21 +29,27 @@ blue() {
 # Function to commit changes
 commit() {
     rm -rf *
-    cp -r ../commits/commit$1/* .
+    cp -r $COMMITS_PATH/commit$1/* .
     svn add --force . 
     svn commit -m "Revision r$1" --username $SVN_USER
     echo "-- Commit r$1"
 }
 
-# Function to create a branch
+# Function to create a new branch
 branch() {
-    svn copy file://$PWD/../svn_repo/trunk file://$PWD/../svn_repo/branches/branch$1 -m "Created branch$1"
-    svn switch file://$PWD/../svn_repo/branches/branch$1
+    svn copy $REPO_PATH/trunk $REPO_PATH/branches/branch$1 -m "Created branch$1"
+    switch_branch $1
+}
+
+# Function to switch to an existing branch
+switch_branch() {
+    svn switch $REPO_PATH/branches/branch$1
+    echo "-- Switched to branch$1"
 }
 
 # Function to merge a branch into the current branch
 merge() {
-    svn merge file://$PWD/../svn_repo/branches/branch$1 .
+    svn merge $REPO_PATH/branches/branch$1 .
     echo "-- Merged branch$1 into $(basename $(pwd))"
 }
 
@@ -66,11 +79,11 @@ branch 5
 commit 5
 
 # Commit 6
-svn switch file://$PWD/../svn_repo/branches/branch3
+switch_branch 3
 commit 6
 
 # Commit 7
-svn switch file://$PWD/../svn_repo/branches/branch5
+switch_branch 5
 commit 7
 
 # Commit 8
@@ -84,15 +97,15 @@ branch 7
 commit 9
 
 # Commit 10
-svn switch file://$PWD/../svn_repo/branches/branch5
+switch_branch 5
 commit 10
 
 # Commit 11
-svn switch file://$PWD/../svn_repo/branches/branch4
+switch_branch 4
 commit 11
 
 # Commit 12
-svn switch file://$PWD/../svn_repo/branches/branch3
+switch_branch 3
 merge 4
 commit 12
 
@@ -103,11 +116,11 @@ commit 13
 commit 14
 
 # Commit 15
-svn switch file://$PWD/../svn_repo/branches/branch2
+switch_branch 2
 commit 15
 
 # Commit 16
-svn switch file://$PWD/../svn_repo/branches/branch7
+switch_branch 7
 commit 16
 
 # Commit 17
@@ -117,16 +130,16 @@ commit 17
 
 # Commit 18
 blue
-svn switch file://$PWD/../svn_repo/branches/branch2
+switch_branch 2
 commit 18
 
 # Commit 19
-svn switch file://$PWD/../svn_repo/branches/branch7
+switch_branch 7
 merge 2
 commit 19
 
 # Commit 20
-svn switch file://$PWD/../svn_repo/branches/branch3
+switch_branch 3
 merge 7
 commit 20
 
@@ -134,28 +147,28 @@ commit 20
 commit 21
 
 # Commit 22
-svn switch file://$PWD/../svn_repo/branches/branch1
+switch_branch 1
 merge 3
 commit 22
 
 # Commit 23
 red
-svn switch file://$PWD/../svn_repo/branches/branch8
+switch_branch 8
 merge 1
 commit 23
 
 # Commit 24
-svn switch file://$PWD/../svn_repo/branches/branch6
+switch_branch 6
 commit 24
 
 # Commit 25
 blue
-svn switch file://$PWD/../svn_repo/branches/branch5
+switch_branch 5
 commit 25
 
 # Commit 26
 red
-svn switch file://$PWD/../svn_repo/branches/branch8
+switch_branch 8
 merge 5
 commit 26
 
@@ -163,16 +176,16 @@ commit 26
 commit 27
 
 # Commit 28
-svn switch file://$PWD/../svn_repo/branches/branch6
+switch_branch 6
 commit 28
 
 # Commit 29
-svn switch file://$PWD/../svn_repo/branches/branch8
+switch_branch 8
 merge 6
 commit 29
 
 # Commit 30 (merge into trunk)
-svn switch file://$PWD/../svn_repo/trunk
+svn switch $REPO_PATH/trunk
 merge 8
 commit 30
 
