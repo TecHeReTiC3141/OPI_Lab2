@@ -23,7 +23,6 @@ commit() {
     svn add * --force 
     svn commit -m "r$1" --username $CURRENT_USER
     echo "-- Commit r$1"
-    divider
 }
 
 branch_from_trunk() {
@@ -32,7 +31,7 @@ branch_from_trunk() {
 }
 
 branch() {
-    svn copy $REPO_URL/branches/"$1" $REPO_URL/branches/branch"$2" -m "Add branch branch$2" --username $CURRENT_USER
+    svn copy $REPO_URL/branches/branch"$1" $REPO_URL/branches/branch"$2" -m "Add branch branch$2" --username $CURRENT_USER
     switch $2
     echo "New branch $2 from $1 created"
 }
@@ -78,13 +77,13 @@ commit 1
 branch 1 2
 commit 2
 
-switch 2 3
+branch 2 3
 commit 3
 
-switch 3 4
+branch 3 4
 commit 4
 
-switch 4 5
+branch 4 5
 commit 5
 
 switch 3
